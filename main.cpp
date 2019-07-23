@@ -1,104 +1,101 @@
 //filename : main.cpp
 //author : PenG
 //create time : 2019/07/23
-//description : Í¨¹ıÊı×é¼ÇÂ¼·¨¼ÆËãËØÊı
-
+//description : é€šè¿‡æ•°ç»„è®°å½•æ³•è®¡ç®—ç´ æ•°
+//version : 2.0
 
 #include <iostream>
 #include <fstream>
-#include <ctime>
+#include <ctime>    //ç”¨äºè®¡ç®—ç®—æ³•è¿è¡Œæ—¶é—´
 
 using namespace std;
 
-const int isPrime = 2;
-const int hasRecord = 1;
-const int notRecord = 0;
+const int isPrime = 2;    //æ ‡è®°ï¼Œæ˜¯ç´ æ•°
+const int hasRecord = 1;    //æ ‡è®°ï¼Œå·²ç»è®°å½•è¿‡
+const int notRecord = 0;    //æ ‡è®°ï¼Œè¿˜æ²¡æœ‰è®°å½•
 
-const int recordSize = 100000000;
+const int recordSize = 100000000;    //è®°å½•æ•°ç»„çš„æœ€å¤§å°ºå¯¸ï¼Œä¸æ˜¯èƒ½è®¡ç®—çš„æœ€å¤§çš„ç´ æ•°
 
+//åˆ©ç”¨ä¸€ä¸ªæœºæ„ä½“å­˜å‚¨ç´ æ•°å’Œè®¡ç®—çš„ç´ æ•°çš„ä¸ªæ•°
 typedef struct
 {
-	int *results;
-	int size;
+	int *results;    //æŒ‡é’ˆï¼ŒæŒ‡å‘è®°å½•ç´ æ•°çš„æ•°ç»„
+	int size;    //è¯¥æ•°ç»„çš„å¤§å°
 }PrimeNumbers;
 
-//¼ÆËãËØÊı
-//·µ»ØPrimeNumvers½á¹¹
+//è®¡ç®—ç´ æ•°ï¼Œè¿”å›PrimeNumversç»“æ„æ•°æ®
 PrimeNumbers calculationOfPrimeNumbers(void);
 
-//Êä³öËØÊı
-//¸ù¾İÌá¹©µÄPrimeNumbers½á¹¹Êä³ö½á¹û
+//è¾“å‡ºç´ æ•°ï¼Œæ ¹æ®æä¾›çš„PrimeNumbersç»“æ„å‘å±å¹•è¾“å‡ºç»“æœ
 void printPrimeNumbers(PrimeNumbers result);
 
-//´òÓ¡Êı¾İµ½ÎÄ¼şÖĞ
+//è¾“å‡ºæ•°æ®åˆ°æ–‡ä»¶ä¸­
 void printToFile(PrimeNumbers result);
 
 int main(void)
 {
-	PrimeNumbers result;
-	clock_t startTime, endTime;
+	PrimeNumbers result;    //å­˜å‚¨è®¡ç®—ç»“æœ
+	
+	clock_t startTime, endTime;    //ç”¨äºè®¡ç®—ç®—æ³•è¿è¡Œæ—¶é—´
 	startTime = clock();
+	
+	//è®¡ç®—å¹¶è·å¾—è®¡ç®—ç»“æœ
 	result = calculationOfPrimeNumbers();
+	
 	endTime = clock();
 	cout << "run time is : " << (double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
 
 	printPrimeNumbers(result);
 
-	cout << "anykey to write file!" << endl;
-	system("pause");
-
+	//ç”±äºè¾“å‡ºæ–‡ä»¶æ—¶é—´æ¯”è¾ƒé•¿ï¼Œè¿™é‡Œæ³¨é‡Šæ‰
+	//cout << "anykey to write file!" << endl;
+	//system("pause");
 	//printToFile(result);
 
 	system("pause");
 
-	//É¾³ı·ÖÅäµÄ¿Õ¼ä
-	delete result.results;
+	
+	delete result.results;    //åˆ é™¤åˆ†é…çš„ç©ºé—´
+	
 	return 0;
 }
 
-PrimeNumbers calculationOfPrimeNumbers(void)
+//ç´ æ•°è®¡ç®—ç®—æ³•,calculationOfPrimeNumberså‡½æ•°è°ƒç”¨
+void calculate(int *record)
 {
-	
-	int *record = new int[recordSize];    //´æ´¢¼ÆËã¹ı³ÌµÄÊı×é
-
-	//0ºÍ1¿Ï¶¨²»ÊÇËØÊı£¬2¿Ï¶¨ÊÇËØÊı£¬´Ó2¿ªÊ¼
-	record[0] = record[1] = hasRecord;
-	record[2] = isPrime;
-	//³õÊ¼»¯ÆäËû¼ÇÂ¼Îª¡°Î´¼ÇÂ¼¡±
-	for (int i = 3; i < recordSize; i++)
-	{
-		record[i] = notRecord;
-	}
-	
-	int index = 2;    //µ±Ç°¼ÆËãµÄË÷Òı
-	unsigned int targetIndex = 0;    //¼ÆËãµÄÄ¿±êË÷Òı
-	int times = 0;    //Ë÷ÒıµÄ±¶Êı
-	//ÔÚÓĞĞ§·¶Î§ÄÚ¼ÆËã
+	int index = 2;    //å½“å‰è®¡ç®—çš„ç´¢å¼•ï¼Œä»ç¬¬ä¸€ä¸ªç´ æ•°å¼€å§‹è®¡ç®—
+	unsigned int targetIndex = 0;    //è®¡ç®—çš„ç›®æ ‡ç´¢å¼•
+	int times = 0;    //ç´¢å¼•çš„å€æ•°
+	//åœ¨æœ‰æ•ˆèŒƒå›´å†…è®¡ç®—
 	while (index < recordSize)
 	{
-		times = index;    //Ë÷Òı±¶Êı´Óµ±Ç°Ë÷Òı¿ªÊ¼
-		targetIndex = index * times;    //Ä¿±êË÷ÒıµÈÓÚµ±Ç°Ë÷Òı³ËÒÔË÷Òı±¶Êı
-		//µ±Ä¿±êË÷ÒıÔÚ·¶Î§ÄÚÊ±Ñ­»·
+		times = index;    //ç´¢å¼•å€æ•°ä»å½“å‰ç´¢å¼•å¼€å§‹
+		targetIndex = index * times;    //ç›®æ ‡ç´¢å¼•ç­‰äºå½“å‰ç´¢å¼•ä¹˜ä»¥ç´¢å¼•å€æ•°
+		//å½“ç›®æ ‡ç´¢å¼•åœ¨èŒƒå›´å†…æ—¶å¾ªç¯
 		while (targetIndex < recordSize)
 		{
-			//Ğ´Ë÷ÒıËùÔÚµÄÖµÎª¡°ÒÑ¼ÇÂ¼¡±
+			//å†™ç´¢å¼•æ‰€åœ¨çš„å€¼ä¸ºâ€œå·²è®°å½•â€
 			record[targetIndex] = hasRecord;
 
-			//¸üĞÂÄ¿±êË÷Òı
+			//æ›´æ–°ç›®æ ‡ç´¢å¼•
 			targetIndex = index * ++times;
 		}
 		
-		//ÕÒµ½µ±Ç°Ë÷ÒıºóÃæµÚÒ»¸öÎ´¼ÇÂ¼Êı¾İµÄË÷Òı
+		//æ‰¾åˆ°å½“å‰ç´¢å¼•åé¢ç¬¬ä¸€ä¸ªæœªè®°å½•æ•°æ®çš„ç´¢å¼•
 		while (record[++index] != notRecord && index < recordSize)
 		{
 			NULL;
 		}
-		//Õâ¸öÕÒµ½µÄË÷Òı¿Ï¶¨ÊÇËØÊı
+		//è¿™ä¸ªæ‰¾åˆ°çš„ç´¢å¼•è‚¯å®šæ˜¯ç´ æ•°
 		record[index] = isPrime;
 	}
-
-	//Êı³öÓĞ¶àÉÙ¸öËØÊı
-	int amount = 0;
+}
+//è·å–å¹¶è¿”å›è®¡ç®—ç»“æœï¼ŒcalculationOfPrimeNumberså‡½æ•°è°ƒç”¨
+PrimeNumbers getCalculationResults(int *record)
+{
+	int amount = 0;    //ç´ æ•°ä¸ªæ•°
+	int index = 0;    //å½“å‰è®¡ç®—çš„ç´¢å¼•
+	//æ•°å‡ºæœ‰å¤šå°‘ä¸ªç´ æ•°
 	for (int i = 0; i < recordSize; i++)
 	{
 		if (record[i] == isPrime)
@@ -107,11 +104,10 @@ PrimeNumbers calculationOfPrimeNumbers(void)
 		}
 	}
 	PrimeNumbers prime;
-	prime.size = amount;
-	//¸ù¾İËØÊı¸öÊı·ÖÅä¿Õ¼ä
-	prime.results = new int[amount];
-	index = 0;
-	//¼ÇÂ¼ËØÊı
+	prime.size = amount;    //å†™å…¥ç´ æ•°ä¸ªæ•°
+	prime.results = new int[amount];    //æ ¹æ®ç´ æ•°ä¸ªæ•°åˆ†é…ç©ºé—´
+	
+	//æŠŠç´ æ•°æ•°æ®å†™å…¥åˆ°ç»“æœä¸­
 	for (int i = 2; i < recordSize; i++)
 	{
 		if (record[i] == isPrime)
@@ -119,12 +115,35 @@ PrimeNumbers calculationOfPrimeNumbers(void)
 			prime.results[index++] = i;
 		}
 	}
-
 	return prime;
 }
 
+//è®¡ç®—ç´ æ•°ï¼Œè¿”å›PrimeNumversç»“æ„æ•°æ®
+PrimeNumbers calculationOfPrimeNumbers(void)
+{
+	int *record = new int[recordSize];    //å­˜å‚¨è®¡ç®—è¿‡ç¨‹çš„æ•°ç»„
+
+	record[0] = hasRecord;    //0å’Œ1è‚¯å®šä¸æ˜¯ç´ æ•°
+	record[1] = hasRecord;
+	record[2] = isPrime;    //2è‚¯å®šæ˜¯ç´ æ•°
+	
+	//åˆå§‹åŒ–å…¶ä»–è®°å½•ä¸ºnotRecord
+	for (int i = 3; i < recordSize; i++)
+	{
+		record[i] = notRecord;
+	}
+	
+	//å¼€å§‹ç´ æ•°è®¡ç®—
+	calculate(record);
+	
+	//è¿”å›è®¡ç®—ç»“æœ
+	return getCalculationResults(record);
+}
+
+//è¾“å‡ºç´ æ•°ï¼Œæ ¹æ®æä¾›çš„PrimeNumbersç»“æ„å‘å±å¹•è¾“å‡ºç»“æœ
 void printPrimeNumbers(PrimeNumbers result)
 {
+	//ç”±äºè¾“å‡ºçš„ç»“æœæ¯”ä»·å¤šï¼Œä¸èƒ½å…¨éƒ¨çœ‹åˆ°ï¼Œæ‰€ä»¥ä¸éœ€è¦äº†
 	//for (int i = 0; i < result.size; i++)
 	//{
 	//	cout << result.results[i] << endl;
@@ -132,14 +151,17 @@ void printPrimeNumbers(PrimeNumbers result)
 	cout << "size is : " << result.size << endl;
 }
 
+//è¾“å‡ºæ•°æ®åˆ°æ–‡ä»¶ä¸­
 void printToFile(PrimeNumbers result)
 {
 	ofstream file("PrimeNumbers.txt", ios_base::out);
+	
 	cout << "Writing file, please wait a minute!" << endl;
 	for (int i = 0; i < result.size; i++)
 	{
 		file << result.results[i] << endl;
-		if (i % 1000 == 0)
+		//è¿™éƒ¨åˆ†æä¾›å†™æ–‡ä»¶çš„è¿›åº¦
+		if (i % 10000 == 0)
 		{
 			cout << (int)((double)i / (double)result.size * 100.0) << "%" << endl;
 		}
